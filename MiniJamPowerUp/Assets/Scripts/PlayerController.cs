@@ -3,23 +3,51 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    private Vector2 _movementInput;
-    public float movementSpeed = 5f;
+    // tunable stuff
+    public float MovementSpeed = 5f;
 
-    // This function is called automatically by the Player Input component when using "Send Messages"
+    // refrences
+    [SerializeField] Rigidbody playerRB;
+    [SerializeField] Camera mainCamera;
+
+    // private vars
+    private Vector2 _movementInput;
+
+    // used by the new Player Input component when using "Send Messages"
     public void OnMove(InputValue value)
     {
-        // Read the Vector2 value from the input
-        //_movementInput = context.ReadValue<Vector2>();
-
-        var v = value.Get<Vector2>();
-        _movementInput = v;
+        _movementInput = value.Get<Vector2>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        // Use the input value in the Update method for smooth movement
-        Vector3 moveDirection = new Vector3(_movementInput.x, 0, _movementInput.y);
-        transform.Translate(moveDirection * movementSpeed * Time.deltaTime);
+        Move();
+        RotateTowardsMouse();
+    }
+
+    private void Move()
+    {
+        Vector3 movement = new Vector3(_movementInput.x, 0f, _movementInput.y) * MovementSpeed * Time.fixedDeltaTime;
+        playerRB.MovePosition(playerRB.position + movement);
+    }
+
+    private void RotateTowardsMouse()
+    {
+        // create a plane at player's Y position (XZ plane)
+        Plane playerPlane = new Plane(Vector3.up, transform.position);
+        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+        if (playerPlane.Raycast(ray, out float distance))
+        {
+            Vector3 hitPoint = ray.GetPoint(distance);
+            Vector3 direction = hitPoint - transform.position;
+            direction.y = 0f; // keep only horizontal rotation
+
+            if (direction.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                playerRB.MoveRotation(targetRotation);
+            }
+        }
     }
 }
