@@ -228,7 +228,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   MovementSpeed: 5
   playerRB: {fileID: 1153876267}
-  mainCamera: {fileID: 330585545}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

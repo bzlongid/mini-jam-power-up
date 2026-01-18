@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
 
+        UpdateMosePosition();
+
         // Optional: Keep the object alive when loading new scenes
         //DontDestroyOnLoad(this.gameObject);
     }
