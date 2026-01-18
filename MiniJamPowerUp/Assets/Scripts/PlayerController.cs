@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 hitPoint = ray.GetPoint(distance);
             Vector3 direction = hitPoint - transform.position;
-            direction.y = 0f; // keep only horizontal rotation
+            direction.y = -90f; // keep only horizontal rotation
 
             if (direction.sqrMagnitude > 0.001f)
             {
