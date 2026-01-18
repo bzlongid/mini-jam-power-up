@@ -11,7 +11,6 @@ public class WeaponController : MonoBehaviour
     public GameObject bulletPrefab;
     public Transform firePoint;
     public float fireForce = 20f;
-    private WaitForSeconds fireAmmoInterval = new WaitForSeconds(3f);
 
     void Start()
     {
@@ -30,7 +29,7 @@ public class WeaponController : MonoBehaviour
             Fire();
 
             // wait 'fireAmmoInterval' seconds before next iteration
-            yield return fireAmmoInterval;
+            yield return GameManager.Instance.FireAmmoInterval;
         }
     }
 

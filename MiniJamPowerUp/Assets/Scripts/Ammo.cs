@@ -5,9 +5,9 @@ public class Ammo : MonoBehaviour
 {
     private void OnCollisionEnter(Collision collision)
     {
-        //Destroy(gameObject);
-
-        // CHECK IF ENEMY WAS HIT
-        // DAMAGE ENEMY
+        if (collision.gameObject.CompareTag(GameObjectTags.ENEMY))
+        {
+            Destroy(gameObject);
+        }
     }
 }

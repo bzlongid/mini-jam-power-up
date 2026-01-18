@@ -11,7 +11,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] Camera? mainCamera;
 
     // global vars
-    public Quaternion MousePosition;
+    public Quaternion MousePosition { get; private set; }
+    public WaitForSeconds FireAmmoInterval = new WaitForSeconds(3f);
 
     void Awake()
     {
