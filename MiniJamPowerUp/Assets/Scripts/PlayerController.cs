@@ -8,46 +8,30 @@ public class PlayerController : MonoBehaviour
 
     // refrences
     [SerializeField] Rigidbody playerRB;
-    [SerializeField] Camera mainCamera;
 
     // private vars
-    private Vector2 _movementInput;
+    private Vector2 movementInput;
 
-    // used by the new Player Input component when using "Send Messages"
+    // signature used by the new Player Input component when using "Send Messages", do not change
     public void OnMove(InputValue value)
     {
-        _movementInput = value.Get<Vector2>();
+        movementInput = value.Get<Vector2>();
     }
 
     void FixedUpdate()
     {
         Move();
-        RotateTowardsMouse();
+        FaceMouse();
     }
 
     private void Move()
     {
-        Vector3 movement = new Vector3(_movementInput.x, 0f, _movementInput.y) * MovementSpeed * Time.fixedDeltaTime;
+        Vector3 movement = new Vector3(movementInput.x, 0f, movementInput.y) * MovementSpeed * Time.fixedDeltaTime;
         playerRB.MovePosition(playerRB.position + movement);
     }
 
-    private void RotateTowardsMouse()
+    private void FaceMouse()
     {
-        // create a plane at player's Y position (XZ plane)
-        Plane playerPlane = new Plane(Vector3.up, transform.position);
-        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-
-        if (playerPlane.Raycast(ray, out float distance))
-        {
-            Vector3 hitPoint = ray.GetPoint(distance);
-            Vector3 direction = hitPoint - transform.position;
-            direction.y = 0f; // keep only horizontal rotation
-
-            if (direction.sqrMagnitude > 0.001f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-                playerRB.MoveRotation(targetRotation);
-            }
-        }
+        playerRB.MoveRotation(GameManager.Instance.MousePosition);
     }
 }
