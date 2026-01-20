@@ -7,7 +7,6 @@ using UnityEngine;
 public class WeaponController : MonoBehaviour
 {
     // for following the player
-    public Transform playerTransform;
     public Vector3 offsetFromPlayer;
 
     // for ammo
@@ -24,7 +23,7 @@ public class WeaponController : MonoBehaviour
     void Start()
     {
         // stick to the player
-        transform.SetParent(playerTransform);
+        transform.SetParent(GameManager.Instance?.PlayerTransform);
 
         // fire ammo
         StartCoroutine(RepeatFireAmmo());
@@ -38,7 +37,7 @@ public class WeaponController : MonoBehaviour
             Fire();
 
             // wait 'fireAmmoInterval' seconds before next iteration
-            yield return GameManager.Instance.FireAmmoInterval;
+            yield return GameManager.Instance?.FireAmmoInterval ?? new WaitForSeconds(1f);
         }
     }
 

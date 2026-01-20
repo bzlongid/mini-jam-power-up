@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : MonoBehaviour
 {
@@ -11,7 +12,12 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (GameManager.Instance.PlayerTransform != null)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, 
+                GameManager.Instance.PlayerTransform.position,
+                GameManager.Instance.EnemySpeed * Time.deltaTime);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)

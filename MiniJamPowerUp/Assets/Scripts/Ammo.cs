@@ -11,4 +11,10 @@ public class Ammo : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    // despawn when no longer in view of the camera
+    void OnBecameInvisible()
+    {
+        Destroy(gameObject);
+    }
 }

@@ -23,9 +23,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int[] enemiesPerWave = new int[MAX_WAVES] { 5, 10, 15, 20, 25, 30, 50 };
     [SerializeField] private WaitForSeconds enemySpawnRate = new WaitForSeconds(1f);
     [SerializeField] private List<Transform> enemySpawnPoints = new List<Transform>();
+    [SerializeField] private float enemySpeed = 3f;
 
     // refrences
     [SerializeField] Camera? mainCamera;
+    [SerializeField] Transform playerTransform;
 
     // ammo prefabs - can break this out into another manager
     [Serializable]
@@ -40,10 +42,12 @@ public class GameManager : MonoBehaviour
 
     // global vars
     public Quaternion MousePosition { get; private set; }
+    public Transform? PlayerTransform { get; private set; }
 
     public int CurWave { get; private set; } = 1;
 
     public int EnemiesInWave { get; private set; }
+    public float EnemySpeed { get; private set; }
     public int EnemiesLeft { get; private set; }
     public int CurEnemySpawnPointIndex { get; private set; }
 
@@ -70,7 +74,9 @@ public class GameManager : MonoBehaviour
         }
 
         UpdateMosePosition();
+        PlayerTransform = playerTransform;
         SetWeapon(CurWeapon);
+        EnemySpeed = enemySpeed;
         // start wave
 
         // Optional: Keep the object alive when loading new scenes
