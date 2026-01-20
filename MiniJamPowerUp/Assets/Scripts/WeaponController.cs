@@ -45,8 +45,6 @@ public class WeaponController : MonoBehaviour
     {
         CurFirePoints = GetFirePoints();
 
-        Debug.Log($"WeaponController - firing from {CurFirePoints.Count} fire points");
-
         // for each fire point
         for (var i = 0; i < CurFirePoints.Count; i++)
         {

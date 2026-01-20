@@ -25,6 +25,7 @@ public class Enemy : MonoBehaviour
         if (collision.gameObject.CompareTag(GameObjectTags.AMMO))
         {
             Destroy(gameObject);
+            GameManager.Instance.OnEnemyEliminated();
         }
     }
 }

@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,15 +20,18 @@ public class GameManager : MonoBehaviour
     // constants
     public const int MAX_WAVES = 7;
 
+    #region GAMEPLAY TUNABLES
     [Header("Object Refrences")]
     [SerializeField] Camera? mainCamera;
     [SerializeField] GameObject playerGameObject;
 
     [Header("Enemy")]
+    [SerializeField] private GameObject? enemyPrefab;
     [SerializeField] private int[] enemiesPerWave = new int[MAX_WAVES] { 5, 10, 15, 20, 25, 30, 50 };
-    [SerializeField] private WaitForSeconds enemySpawnRate = new WaitForSeconds(1f);
+    [SerializeField] private float enemySpawnRate = 1f;
     [SerializeField] private List<Transform> enemySpawnPoints = new List<Transform>();
     [SerializeField] private float enemySpeed = 3f;
+    [SerializeField] private float waveCooldownRate = 1f;
 
     [Header("Weapon")]
     public Weapon StartingWeapon = Weapon.Single;
@@ -41,23 +45,28 @@ public class GameManager : MonoBehaviour
         public GameObject? AmmoPrefab;
     }
     private Dictionary<AmmoPrefab, GameObject> ammoDict = new Dictionary<AmmoPrefab, GameObject>();
+    #endregion
 
     #region GLOBAL VARS
     public Quaternion MousePosition { get; private set; }
 
     public Transform? PlayerTransform { get; private set; }
     public Rigidbody? PlayerRB { get; private set; }
-
-    public int CurWave { get; private set; } = 1;
-    public int EnemiesInWave { get; private set; }
+    
     public float EnemySpeed { get; private set; }
-    public int EnemiesLeft { get; private set; }
-    public int CurEnemySpawnPointIndex { get; private set; }
 
     public Weapon CurWeapon { get; private set; }
     public GameObject? CurAmmoPrefab { get; private set; }
     public AmmoSpread CurAmmoSpread { get; private set; }
     public WaitForSeconds FireAmmoInterval { get; private set; } = new WaitForSeconds(1f);
+    #endregion
+
+    #region PRIVATE VARS
+    private int curWave = 0;
+    private int enemiesInWave { get { return enemiesPerWave[curWave]; } }
+    private int curEnemySpawnPointIndex = 0;
+    private int enemiesSpawned = 0;
+    private int enemiesLeft;
     #endregion
 
     void Awake()
@@ -79,13 +88,24 @@ public class GameManager : MonoBehaviour
 
         UpdateMosePosition();
 
+        // set player info
         PlayerTransform = playerGameObject.transform;
         PlayerRB = playerGameObject.GetComponent<Rigidbody>();
-
         SetWeapon(StartingWeapon);
 
+        // set enemy info
         EnemySpeed = enemySpeed;
-        // start wave
+
+        // start the waves
+        if (enemyPrefab != null && enemySpawnPoints.Count > 0)
+        {
+            SetWave(curWave);
+            StartCoroutine(RepeatSpawnEnemies());
+        }
+        else
+        {
+            Debug.LogError("GameManager - enemy prefab is null or there are no spawn points.");
+        }
 
         // Optional: Keep the object alive when loading new scenes
         //DontDestroyOnLoad(this.gameObject);
@@ -96,40 +116,81 @@ public class GameManager : MonoBehaviour
         UpdateMosePosition();
     }
 
+    private void SetWave(int waveIndex)
+    {
+        curWave = waveIndex;
+        enemiesLeft = enemiesInWave;
+        enemiesSpawned = 0;
+    }
+
+    private IEnumerator RepeatSpawnEnemies()
+    {
+        while (enemiesSpawned < enemiesInWave)
+        {
+            SpawnEnemy();
+            enemiesSpawned++;
+            yield return new WaitForSeconds(enemySpawnRate);
+        }
+    }
+
+    private void SpawnEnemy()
+    {
+        // update the spawn point index
+        curEnemySpawnPointIndex++;
+        curEnemySpawnPointIndex = curEnemySpawnPointIndex % enemySpawnPoints.Count;
+
+        // get the spawn point
+        Vector3 spawnPoint = enemySpawnPoints[curEnemySpawnPointIndex].position;
+
+        // spawn enemy
+        Instantiate(enemyPrefab, spawnPoint, new Quaternion(0, 0, 0, 0));
+    }
+
     public void OnEnemyEliminated()
     {
-        EnemiesLeft--;
+        enemiesLeft--;
 
-        if (EnemiesLeft <= 0) OnWaveEnded();
+        if (enemiesLeft <= 0)
+        {
+            
+            OnWaveEnded();
+        }
     }
 
     private void OnWaveEnded()
     {
         // put anything to signal the wave end here i.e. sound, cutscene, animations, etc.
 
+        Debug.Log($"WAVE {curWave} ENDED");
+
+        /*
         // update the wave info
-        CurWave++;
-        if (CurWave > MAX_WAVES)
+        curWave++;
+        if (curWave >= enemiesPerWave.Length)
         {
             OnGameEnded();
             return;
         }
 
-        EnemiesInWave = enemiesPerWave[CurWave];
-        EnemiesLeft = EnemiesInWave;
+        SetWave(curWave);
 
         // update the player weapon
         var weaponTypes = Enum.GetValues(typeof(Weapon));
-        if (weaponTypes.Length >= CurWave)
+        if (weaponTypes.Length >= curWave)
         {
-            SetWeapon((Weapon)weaponTypes.GetValue(CurWave));
+            SetWeapon((Weapon)weaponTypes.GetValue(curWave));
         }
         else
         {
-            Debug.LogError($"GameManager - Could not find a weapon for wave {CurWave}! Defaulting to game end...");
+            Debug.LogError($"GameManager - Could not find a weapon for wave {curWave}! Defaulting to game end...");
             OnGameEnded();
             return;
         }
+
+        Debug.Log($"STARTING WAVE {curWave} WITH WEAPON {CurWeapon}");
+
+        // start wave
+        */
     }
 
     private void OnGameEnded()
