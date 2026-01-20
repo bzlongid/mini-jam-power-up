@@ -7,9 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     // tunable stuff
     public float MovementSpeed = 5f;
-
-    // refrences
-    [SerializeField] Rigidbody playerRB;
+    public float TurnDamping = 15f;
 
     // private vars
     private Vector2 movementInput;
@@ -29,16 +27,22 @@ public class PlayerController : MonoBehaviour
     private void Move()
     {
         Vector3 movement = new Vector3(movementInput.x, 0f, movementInput.y) * MovementSpeed * Time.fixedDeltaTime;
-        playerRB.MovePosition(playerRB.position + movement);
+        GameManager.Instance.PlayerRB.MovePosition(GameManager.Instance.PlayerRB.position + movement);
     }
 
     private void FaceMouse()
     {
-        Quaternion mousePosition = Quaternion.Euler(
-        GameManager.Instance.MousePosition.eulerAngles.x,
-        GameManager.Instance.MousePosition.eulerAngles.y,
-        0);//GameManager.Instance.MousePosition.eulerAngles.z);
-
-        playerRB.MoveRotation(mousePosition);
+        var playerRB = GameManager.Instance.PlayerRB;
+        if (playerRB != null)
+        {
+            playerRB.MoveRotation(
+            Quaternion.Slerp(playerRB.rotation, GameManager.Instance.MousePosition, TurnDamping * Time.fixedDeltaTime)
+            );
+        }
+        else
+        {
+            Debug.LogError("PlayerController - Player Rigid Body is null! Ensure the player object is set in the game manager.");
+        }
+        
     }
 }
