@@ -1,3 +1,5 @@
+#nullable enable
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -32,6 +34,11 @@ public class PlayerController : MonoBehaviour
 
     private void FaceMouse()
     {
-        playerRB.MoveRotation(GameManager.Instance.MousePosition);
+        Quaternion mousePosition = Quaternion.Euler(
+        GameManager.Instance.MousePosition.eulerAngles.x,
+        GameManager.Instance.MousePosition.eulerAngles.y,
+        0);//GameManager.Instance.MousePosition.eulerAngles.z);
+
+        playerRB.MoveRotation(mousePosition);
     }
 }

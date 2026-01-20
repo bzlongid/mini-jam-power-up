@@ -1,5 +1,6 @@
+#nullable enable
+
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Ammo : MonoBehaviour
 {
